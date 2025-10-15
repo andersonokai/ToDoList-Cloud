@@ -90,6 +90,11 @@ def add_task(db, user_id):
         name = input("Enter task name: ")
         description = input("Enter task description: ")
         
+        # Validate inputs
+        if not name.strip() or not description.strip():
+            print("Task name and description cannot be empty.")
+            return False
+        
         # Create task document
         task_data = {
             'id': task_id,

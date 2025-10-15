@@ -8,10 +8,10 @@ A console-based Python application using Google Firestore to manage tasks with F
 - Oct 15, 2025: Implemented task structure (`tasks` collection) and authentication (create user, sign-in) with console menu.
 - Oct 15, 2025: Added insert (`add_task`) and retrieve (`list_tasks`) functions, integrated into menu.
 - Oct 15, 2025: Added modify (`modify_task`) and delete (`delete_task`) functions, completing CRUD operations.
+- Oct 18, 2025: Tested authentication and CRUD operations, debugged issues, ensured user-specific task access.
 
 ## Next Steps
-- Test all CRUD operations and debug issues.
-- Record demo video and submit to Canvas.
+- Record demo video, push code to GitHub, post to Teams, submit to Canvas.
 
 ## Author
 Anderson Okai, Ghana

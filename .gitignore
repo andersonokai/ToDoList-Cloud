@@ -1,0 +1,4 @@
+# .gitignore
+todolist-andersonokai-firebase-adminsdk-fbsvc-16ffd9ebc8.json
+*.pyc
+__pycache__/
