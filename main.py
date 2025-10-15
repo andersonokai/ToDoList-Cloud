@@ -70,7 +70,7 @@ def sign_in_user():
         
         # Verify user by email (simulating sign-in)
         user = auth.get_user_by_email(email)
-        print(f"User signed in successfully with ID: {user.uid}")
+        print(f"\nWelcome to the To-Do List App, {email}! Let's manage your tasks.")
         return user.uid
     except Exception as e:
         print(f"Error signing in: {e}")
@@ -220,6 +220,7 @@ def main():
 
     current_user_id = None
     
+    print("\nWelcome to the To-Do List App! Let's get organized.")
     while True:
         if current_user_id:
             print(f"\nTo-Do List Application (Logged in as user {current_user_id})")
@@ -245,9 +246,8 @@ def main():
                 user_id = sign_in_user()
                 if user_id:
                     current_user_id = user_id
-                    print(f"Logged in as user {user_id}. Ready to manage tasks.")
             elif choice == '3':
-                print("Exiting application.")
+                print("Bye bye! Thanks for using the To-Do List App.")
                 break
             else:
                 print("Invalid choice. Try again.")
@@ -261,7 +261,7 @@ def main():
             elif choice == '4':
                 delete_task(db, current_user_id)
             elif choice == '5':
-                print(f"User {current_user_id} signed out.")
+                print(f"Bye bye, user {current_user_id}! See you next time.")
                 current_user_id = None
             else:
                 print("Invalid choice. Try again.")
