@@ -26,10 +26,10 @@ def initialize_firebase():
         
         # Get Firestore client
         db = firestore.client()
-        print("Successfully connected to Firestore!")
+        print("✅ Successfully connected to Firestore!")
         return db
     except Exception as e:
-        print(f"Error initializing Firebase: {e}")
+        print(f"❌ Error initializing Firebase: {e}")
         return None
 
 def create_user(db):
@@ -38,24 +38,25 @@ def create_user(db):
     Returns user_id if successful, None otherwise.
     """
     try:
-        email = input("Enter email: ")
-        password = getpass("Enter password (minimum 6 characters): ")
+        email = input("📧 Enter email: ")
+        password = getpass("🔑 Enter password (minimum 6 characters): ")
         
         # Create user in Firebase Authentication
         user = auth.create_user(
             email=email,
             password=password
         )
-        print(f"User created successfully with ID: {user.uid}")
+        print(f"👤 User created successfully with ID: {user.uid}")
         
         # Store user info in Firestore
         db.collection('users').document(user.uid).set({
             'email': email,
             'created_at': firestore.SERVER_TIMESTAMP
         })
+        print("✅ Registration complete! Please sign in now.")
         return user.uid
     except Exception as e:
-        print(f"Error creating user: {e}")
+        print(f"🚫 Error creating user: {e}")
         return None
 
 def sign_in_user():
@@ -65,15 +66,16 @@ def sign_in_user():
     Note: Admin SDK simulates sign-in by fetching user; use Client SDK for production.
     """
     try:
-        email = input("Enter email: ")
-        password = getpass("Enter password: ")
+        email = input("📧 Enter email: ")
+        # Using getpass for password input security
+        password = getpass("🔑 Enter password: ") 
         
         # Verify user by email (simulating sign-in)
         user = auth.get_user_by_email(email)
-        print(f"\nWelcome to the To-Do List App, {email}! Let's manage your tasks.")
+        print(f"\n👋 Welcome to the To-Do List App, {email}! Let's manage your tasks.")
         return user.uid
     except Exception as e:
-        print(f"Error signing in: {e}")
+        print(f"🚫 Error signing in: {e}")
         return None
 
 def add_task(db, user_id):
@@ -87,12 +89,12 @@ def add_task(db, user_id):
         task_id = str(uuid.uuid4())
         
         # Get task details from user
-        name = input("Enter task name: ")
-        description = input("Enter task description: ")
+        name = input("✍️ Enter task name: ")
+        description = input("📄 Enter task description: ")
         
         # Validate inputs
         if not name.strip() or not description.strip():
-            print("Task name and description cannot be empty.")
+            print("🚫 Task name and description cannot be empty. Task creation cancelled.")
             return False
         
         # Create task document
@@ -106,10 +108,10 @@ def add_task(db, user_id):
         
         # Add to Firestore
         db.collection('tasks').document(task_id).set(task_data)
-        print(f"Task '{name}' added successfully with ID: {task_id}")
+        print(f"✅ Task '{name}' added successfully with ID: {task_id}")
         return True
     except Exception as e:
-        print(f"Error adding task: {e}")
+        print(f"❌ Error adding task: {e}")
         return False
 
 def list_tasks(db, user_id):
@@ -122,11 +124,11 @@ def list_tasks(db, user_id):
         # Query tasks where user_id matches
         tasks = db.collection('tasks').where('user_id', '==', user_id).stream()
         
-        print("\nYour Tasks:")
+        print("\n📋 Your Tasks:")
         found = False
         for task in tasks:
             task_data = task.to_dict()
-            print(f"ID: {task_data['id']}")
+            print(f"--- 📝 Task ID: {task_data['id']} ---")
             print(f"Name: {task_data['name']}")
             print(f"Description: {task_data['description']}")
             print(f"Status: {task_data['status']}")
@@ -134,10 +136,10 @@ def list_tasks(db, user_id):
             found = True
         
         if not found:
-            print("No tasks found for this user.")
+            print("✨ No tasks found for this user. You're all caught up!")
         return True
     except Exception as e:
-        print(f"Error retrieving tasks: {e}")
+        print(f"❌ Error retrieving tasks: {e}")
         return False
 
 def modify_task(db, user_id):
@@ -147,15 +149,16 @@ def modify_task(db, user_id):
     Returns True if successful, False otherwise.
     """
     try:
-        task_id = input("Enter task ID to modify: ")
+        task_id = input("✏️ Enter task ID to modify: ")
         
         # Verify task exists and belongs to user
         task_ref = db.collection('tasks').document(task_id)
         task = task_ref.get()
         if not task.exists or task.to_dict()['user_id'] != user_id:
-            print("Task not found or you don't have permission.")
+            print("🚫 Task not found or you don't have permission.")
             return False
         
+        print("🔄 What do you want to change?")
         print("1. Update Status (Pending/Completed)")
         print("2. Update Description")
         choice = input("Enter choice (1-2): ")
@@ -164,22 +167,22 @@ def modify_task(db, user_id):
         if choice == '1':
             status = input("Enter new status (Pending/Completed): ")
             if status not in ['Pending', 'Completed']:
-                print("Invalid status. Use 'Pending' or 'Completed'.")
+                print("⚠️ Invalid status. Use 'Pending' or 'Completed'.")
                 return False
             updates['status'] = status
         elif choice == '2':
             description = input("Enter new description: ")
             updates['description'] = description
         else:
-            print("Invalid choice.")
+            print("⚠️ Invalid choice.")
             return False
         
         # Update task in Firestore
         task_ref.update(updates)
-        print(f"Task {task_id} updated successfully.")
+        print(f"✅ Task {task_id} updated successfully.")
         return True
     except Exception as e:
-        print(f"Error modifying task: {e}")
+        print(f"❌ Error modifying task: {e}")
         return False
 
 def delete_task(db, user_id):
@@ -189,21 +192,21 @@ def delete_task(db, user_id):
     Returns True if successful, False otherwise.
     """
     try:
-        task_id = input("Enter task ID to delete: ")
+        task_id = input("🗑️ Enter task ID to delete: ")
         
         # Verify task exists and belongs to user
         task_ref = db.collection('tasks').document(task_id)
         task = task_ref.get()
         if not task.exists or task.to_dict()['user_id'] != user_id:
-            print("Task not found or you don't have permission.")
+            print("🚫 Task not found or you don't have permission.")
             return False
         
         # Delete task from Firestore
         task_ref.delete()
-        print(f"Task {task_id} deleted successfully.")
+        print(f"✅ Task {task_id} deleted successfully.")
         return True
     except Exception as e:
-        print(f"Error deleting task: {e}")
+        print(f"❌ Error deleting task: {e}")
         return False
 
 def main():
@@ -215,25 +218,25 @@ def main():
     db = initialize_firebase()
     
     if not db:
-        print("Setup failed. Exiting.")
+        print("❌ Setup failed. Exiting.")
         return
 
     current_user_id = None
     
-    print("\nWelcome to the To-Do List App! Let's get organized.")
+    print("\n👋 Welcome to the To-Do List App! Let's get organized.")
     while True:
         if current_user_id:
-            print(f"\nTo-Do List Application (Logged in as user {current_user_id})")
-            print("1. Add Task")
-            print("2. List Tasks")
-            print("3. Modify Task")
-            print("4. Delete Task")
-            print("5. Sign Out")
+            print(f"\n--- ☁️ To-Do List Application (Logged in as user {current_user_id}) ---")
+            print("1. ➕ Add Task (Create)")
+            print("2. 📋 List Tasks (Retrieve)")
+            print("3. ✏️ Modify Task (Update)")
+            print("4. 🗑️ Delete Task (Delete)")
+            print("5. 🚪 Sign Out")
         else:
-            print("\nTo-Do List Application")
-            print("1. Create User")
-            print("2. Sign In")
-            print("3. Exit")
+            print("\n--- 🔒 To-Do List Application (Sign-in/Sign-up) ---")
+            print("1. 👤 Create User")
+            print("2. 🔑 Sign In")
+            print("3. ❌ Exit")
         
         choice = input("Enter choice: ")
         
@@ -241,16 +244,16 @@ def main():
             if choice == '1':
                 user_id = create_user(db)
                 if user_id:
-                    print(f"Welcome, user {user_id}! Please sign in to manage tasks.")
+                    pass # Message handled in create_user
             elif choice == '2':
                 user_id = sign_in_user()
                 if user_id:
                     current_user_id = user_id
             elif choice == '3':
-                print("Bye bye! Thanks for using the To-Do List App.")
+                print("👋 Bye bye! Thanks for using the To-Do List App.")
                 break
             else:
-                print("Invalid choice. Try again.")
+                print("⚠️ Invalid choice. Try again.")
         else:
             if choice == '1':
                 add_task(db, current_user_id)
@@ -261,10 +264,10 @@ def main():
             elif choice == '4':
                 delete_task(db, current_user_id)
             elif choice == '5':
-                print(f"Bye bye, user {current_user_id}! See you next time.")
+                print(f"🚪 Signing out. See you next time, user {current_user_id}!")
                 current_user_id = None
             else:
-                print("Invalid choice. Try again.")
+                print("⚠️ Invalid choice. Try again.")
 
 if __name__ == "__main__":
     main()
